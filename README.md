@@ -1,14 +1,15 @@
-## IC Chips Defect Detection with Convolutional Neural Networks(CNN)
+## IC Chips Defect Detection with CNN and SSL
 
 ### Overview
 
-This repository contains a convolutional neural network (CNN)–based system for automated visual defect detection in industrial products.  
-The workflow is implemented in Jupyter Notebooks:
+This repository contains two pipelines for automated visual defect detection in industrial products:
 
-- `defect_cnn.ipynb` – model definition, training, and validation  
-- `defect_inference.ipynb` – model loading, inference on test data, and manual review  
+- **Supervised CNN pipeline (`cnn/`)** – classic convolutional neural network (CNN) for defect classification, trained with labeled data.  
+- **Self‑supervised learning (SSL) + YOLO pipeline (`ssl/`)** – uses a YOLO‑style dataset and self‑supervised representations to build a defect classifier with improved data efficiency.
 
-The trained model achieves **100% validation accuracy** from epoch 10 onward and **100% accuracy on the human‑verified test set**.
+Both pipelines are implemented in Jupyter Notebooks.
+
+For the supervised CNN pipeline, the trained model achieves **100% validation accuracy** from epoch 10 onward and **100% accuracy on the human‑verified test set** (on the current dataset).
 
 ---
 
@@ -39,8 +40,9 @@ Update any dataset paths inside the notebooks to match your local directory stru
 
 ### Key Features
 
-- **End‑to‑end CNN pipeline** for defect classification (training + inference)  
-- **High accuracy** on both validation and manually inspected test data  
+- **End‑to‑end supervised CNN pipeline** for defect classification (training + inference)  
+- **Self‑supervised (SSL) + YOLO pipeline** exploring representation learning and label efficiency  
+- **High accuracy** on both validation and manually inspected test data (CNN pipeline)  
 - **Notebook‑based experimentation** for easy modification and visualization  
 - **Modular structure** separating training and inference steps  
 
@@ -50,9 +52,13 @@ Update any dataset paths inside the notebooks to match your local directory stru
 
 ```text
 .
-├─ defect_cnn.ipynb          # Training and validation of the CNN model
-├─ defect_inference.ipynb    # Inference and manual evaluation
-└─ README.md                 # Project documentation
+├─ cnn/
+│  ├─ defect_cnn.ipynb        # Supervised CNN: training and validation
+│  └─ defect_inference.ipynb  # Supervised CNN: inference and manual evaluation
+├─ ssl/
+│  ├─ ssl_yolo_defect.ipynb   # SSL + YOLO: training / feature learning on YOLO‑style data
+│  └─ ssl_inference.ipynb     # SSL + YOLO: inference and analysis
+└─ README.md                  # Project documentation
 ```
 
 ---
@@ -60,28 +66,31 @@ Update any dataset paths inside the notebooks to match your local directory stru
 ### Environment and Dependencies
 
 This project uses **Python 3.x** and **Jupyter Notebook**.  
-All required packages are installed directly inside the notebooks using `%pip install` cells, rather than a standalone `requirements.txt` file.  
-Typical dependencies include:
+All required packages are installed directly inside the notebooks using `%pip install` cells, rather than a standalone `requirements.txt` file.
+
+Typical dependencies for both pipelines include:
 
 - `torch`, `torchvision`
 - `pandas`
 - `numpy`
 - `scikit-learn`
 - `matplotlib`
+- `ultralytics` (for working with YOLO‑style data in the SSL pipeline)
 
 To reproduce the environment:
 
 1. Create and activate a Python virtual environment (optional but recommended).  
 2. Launch Jupyter Notebook.  
-3. Open `defect_cnn.ipynb` and run the initial cells that contain `%pip install` commands to install the necessary packages.  
+3. For the **CNN pipeline**, open `cnn/defect_cnn.ipynb` and run the initial cells that contain `%pip install` commands.  
+4. For the **SSL pipeline**, open `ssl/ssl_yolo_defect.ipynb` and run the initial cells that contain `%pip install` commands.  
 
 You can later export your own `requirements.txt` if needed (e.g., using `pip freeze > requirements.txt`).
 
 ---
 
-### Model and Training
+### Model and Training – CNN Pipeline
 
-The CNN architecture and training pipeline are defined in `defect_cnn.ipynb`. Typical elements include:
+The supervised CNN architecture and training pipeline are defined in `cnn/defect_cnn.ipynb`. Typical elements include:
 
 - Convolutional layers with nonlinear activations  
 - Pooling and/or batch normalization  
@@ -96,19 +105,9 @@ The CNN architecture and training pipeline are defined in `defect_cnn.ipynb`. Ty
 - Loss: cross‑entropy  
 - Metric: validation accuracy (Val Acc)  
 
-#### Training and Validation Results
+### Inference and Manual Evaluation – CNN Pipeline
 
-The training loss and validation accuracy across 20 epochs are summarized in the following figure:
-
-![Training Loss and Validation Accuracy](images\training_curve.png)
-
-From **epoch 10 onward**, the validation accuracy is consistently **100%**.
-
----
-
-### Inference and Manual Evaluation
-
-The notebook `defect_inference.ipynb` is used to:
+The notebook `cnn/defect_inference.ipynb` is used to:
 
 1. Load the trained model weights  
 2. Run inference on the test dataset or new images  
@@ -122,12 +121,23 @@ All predictions on the test set were manually verified by a human and found to b
 
 ### Getting Started
 
+#### 1. Supervised CNN Pipeline (`cnn/`)
+
 1. Launch Jupyter Notebook in this project directory.  
-2. Open `defect_cnn.ipynb`.  
+2. Open `cnn/defect_cnn.ipynb`.  
 3. Run the `%pip install` cells to install dependencies in your current environment.  
 4. Configure dataset paths as described in the **Dataset Download** section.  
-5. Run the training cells to train the model and save weights to `models/`.  
-6. Open `defect_inference.ipynb` to run inference and manually review predictions.  
+5. Run the training cells to train the model and save weights (e.g., `defect_cnn.pth`).  
+6. Open `cnn/defect_inference.ipynb` to run inference and manually review predictions.  
+
+#### 2. SSL + YOLO Pipeline (`ssl/`)
+
+1. Launch Jupyter Notebook in this project directory.  
+2. Open `ssl/ssl_yolo_defect.ipynb`.  
+3. Run the `%pip install` cells to install dependencies (including `ultralytics`).  
+4. Point the notebook to your YOLO‑style dataset (train/val/test with `images/` and `labels/`).  
+5. Train / fine‑tune the SSL‑based model and evaluate on the validation or test split.  
+6. Use `ssl/ssl_inference.ipynb` for focused inference and qualitative analysis.
 
 ---
 
