@@ -5,9 +5,10 @@
 This repository contains two pipelines for automated visual defect detection in industrial products:
 
 - **Supervised CNN pipeline (`cnn/`)** – classic convolutional neural network (CNN) for defect classification, trained with labeled data.  
-- **Self‑supervised learning (SSL) + YOLO pipeline (`ssl/`)** – uses a YOLO‑style dataset and self‑supervised representations to build a defect classifier with improved data efficiency.
+- **Self‑supervised learning (SSL) + YOLO pipeline (`ssl/`)** – uses a YOLO‑style dataset and self‑supervised representations to build a defect classifier with improved data efficiency.  
+- **SSL without labelled data (`ssl/`)** – train an encoder with contrastive learning using only unlabelled images (no YOLO labels required), then use it for inference or downstream tasks. See `SSL_TUNING_GUIDE.md` for tuning tips.
 
-Both pipelines are implemented in Jupyter Notebooks.
+All pipelines are implemented in Jupyter Notebooks.
 
 For the supervised CNN pipeline, the trained model achieves **100% validation accuracy** from epoch 10 onward and **100% accuracy on the human‑verified test set** (on the current dataset).
 
@@ -42,6 +43,8 @@ Update any dataset paths inside the notebooks to match your local directory stru
 
 - **End‑to‑end supervised CNN pipeline** for defect classification (training + inference)  
 - **Self‑supervised (SSL) + YOLO pipeline** exploring representation learning and label efficiency  
+- **SSL without labelled data** – train an encoder on unlabelled images only, then run inference or fine-tune for downstream tasks  
+- **SSL tuning guide** (`ssl/SSL_TUNING_GUIDE.md`) – practical tips for temperature, learning rate, batch size, and projection head  
 - **High accuracy** on both validation and manually inspected test data (CNN pipeline)  
 - **Notebook‑based experimentation** for easy modification and visualization  
 - **Modular structure** separating training and inference steps  
@@ -57,7 +60,11 @@ Update any dataset paths inside the notebooks to match your local directory stru
 │  └─ defect_inference.ipynb  # Supervised CNN: inference and manual evaluation
 ├─ ssl/
 │  ├─ ssl_yolo_defect.ipynb   # SSL + YOLO: training / feature learning on YOLO‑style data
-│  └─ ssl_inference.ipynb     # SSL + YOLO: inference and analysis
+│  ├─ ssl_inference.ipynb     # SSL + YOLO: inference and analysis
+│  ├─ without_labelled_data_ssl_train.ipynb   # SSL: train encoder with unlabelled images only
+│  ├─ ssl_inference_without_labelled_data.ipynb  # SSL: inference using no-labels encoder
+│  ├─ ssl_pretrained_encoder_no_labels.pth    # (optional) Saved encoder from no-labels SSL training
+│  └─ SSL_TUNING_GUIDE.md     # Guide for tuning SSL (temperature, lr, batch size, etc.)
 └─ README.md                  # Project documentation
 ```
 
@@ -138,6 +145,14 @@ All predictions on the test set were manually verified by a human and found to b
 4. Point the notebook to your YOLO‑style dataset (train/val/test with `images/` and `labels/`).  
 5. Train / fine‑tune the SSL‑based model and evaluate on the validation or test split.  
 6. Use `ssl/ssl_inference.ipynb` for focused inference and qualitative analysis.
+
+#### 3. SSL Without Labelled Data (`ssl/`)
+
+1. Open `ssl/without_labelled_data_ssl_train.ipynb`.  
+2. Run the `%pip install` cells and point the notebook to a folder of **unlabelled** images (no YOLO labels needed).  
+3. Train the encoder with contrastive learning; optionally save weights (e.g. `ssl_pretrained_encoder_no_labels.pth`).  
+4. Use `ssl/ssl_inference_without_labelled_data.ipynb` to load the trained encoder and run inference or analysis.  
+5. For better representations, see `ssl/SSL_TUNING_GUIDE.md` (temperature, learning rate, batch size, projection head, etc.).
 
 ---
 
